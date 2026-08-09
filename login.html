@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Storefront</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabaseClient.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.35),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.25),_transparent_30%)]"></div>
+    <main class="relative mx-auto flex min-h-screen max-w-6xl items-center px-6 py-12">
+      <section class="flex-1 rounded-3xl bg-slate-900/95 border border-white/10 p-8 shadow-2xl backdrop-blur sm:p-12">
+        <div class="mb-10 text-center">
+          <p class="text-sm uppercase tracking-[0.35em] text-cyan-300">Welcome back</p>
+          <h1 class="mt-4 text-4xl font-bold text-white">Sign in to continue shopping</h1>
+          <p class="mt-3 text-slate-400">Secure access to your account and saved cart.</p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+          <div>
+            <label class="block text-sm font-semibold text-slate-200">Email</label>
+            <input type="email" id="email" required class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-3 text-slate-100 outline-none ring-2 ring-transparent transition focus:ring-cyan-400" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-200">Password</label>
+            <input type="password" id="password" required class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-3 text-slate-100 outline-none ring-2 ring-transparent transition focus:ring-cyan-400" />
+          </div>
+          <button type="submit" class="w-full rounded-2xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400">Log In</button>
+        </form>
+
+        <p class="mt-8 text-center text-sm text-slate-400">New here? <a href="signup.html" class="font-semibold text-cyan-300 hover:text-cyan-200">Create an account</a></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        alert('Login failed: ' + error.message);
+      } else {
+        localStorage.setItem('userEmail', email);
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html>
