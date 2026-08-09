@@ -9,3 +9,5 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
 } else {
   console.error('Supabase library load nahi hui! Please head section me CDN script check karein.');
 }
+
+
