@@ -56,6 +56,7 @@
             <th class="p-4 text-sm font-semibold text-gray-600">Order ID</th>
             <th class="p-4 text-sm font-semibold text-gray-600">Total Amount</th>
             <th class="p-4 text-sm font-semibold text-gray-600">Status</th>
+            <th class="p-4 text-sm font-semibold text-gray-600">Action</th>
           </tr>
         </thead>
         <tbody id="user-orders" class="divide-y divide-gray-200">
@@ -104,7 +105,7 @@
 
       const tbody = document.getElementById('user-orders');
       if (orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500">No previous orders found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">No previous orders found.</td></tr>`;
         return;
       }
 
@@ -113,8 +114,34 @@
           <td class="p-4 text-sm font-medium">#${o.id}</td>
           <td class="p-4 text-sm">$${parseFloat(o.total_amount).toFixed(2)}</td>
           <td class="p-4 text-sm"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">${o.status}</span></td>
+          <td class="p-4 text-sm"><button type="button" onclick="deleteUserOrder('${o.id}')" class="font-semibold text-red-600 hover:text-red-800">Delete Order</button></td>
         </tr>
       `).join('');
+    }
+
+    async function deleteUserOrder(orderId) {
+      if (!confirm(`Delete order #${orderId}? This action cannot be undone.`)) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) return;
+
+      const { data: deletedOrders, error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId)
+        .eq('user_email', user.email)
+        .select('id');
+
+      if (error) {
+        alert('Order delete failed: ' + error.message);
+        return;
+      }
+      if (!deletedOrders || deletedOrders.length === 0) {
+        alert('Order was not deleted. Check your account permissions or Supabase DELETE policy.');
+        return;
+      }
+
+      await loadUserOrders(user.email);
     }
 
     async function logout() {
