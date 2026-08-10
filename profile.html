@@ -23,9 +23,17 @@
 
   <main class="max-w-4xl mx-auto px-4 py-8">
     <div class="bg-white p-6 rounded-lg shadow border border-gray-200 mb-8 flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">User Profile</h1>
-        <p id="user-display-email" class="text-gray-500 mt-1">Not logged in</p>
+      <div class="flex items-center gap-4">
+        <img
+          id="profile-avatar"
+          src="https://via.placeholder.com/96"
+          alt="Profile picture"
+          class="profile-avatar h-16 w-16 rounded-full object-cover"
+        >
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">User Profile</h1>
+          <p id="user-display-email" class="text-gray-500 mt-1">Not logged in</p>
+        </div>
       </div>
       <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Log Out</button>
     </div>
