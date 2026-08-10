@@ -26,8 +26,13 @@
       <div class="flex items-center gap-4">
         <img
           id="profile-avatar"
-          src="https://via.placeholder.com/96"
+          src="https://ui-avatars.com/api/?name=Quick+Cart&background=e76843&color=fff&size=150"
+          data-profile-image="https://instagram.fkhi17-2.fna.fbcdn.net/v/t51.82787-19/756724548_18452391262185588_6272743396484119927_n.jpg?stp=dst-jpg_s150x150_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.fkhi17-2.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2gHTIkT66sc99wvsgeacHxMKSdNScZY7OkMbI0x-0NBNaIEtTfwcc1e7Ug6UFmrVSoI&_nc_ohc=MICN-B-aKtsQ7kNvwEHlFeY&_nc_gid=fi7Hl2ZU_winTSr_gZlSHg&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AQEn7ASVmhNsK75xGWYn4eIcXF7Utw-1QXCuwPdSdE-5Ww&oe=6A7F4CBB&_nc_sid=7a9f4b"
           alt="Profile picture"
+          referrerpolicy="no-referrer"
+          loading="eager"
+          decoding="async"
+          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Quick+Cart&background=e76843&color=fff&size=150';"
           class="profile-avatar h-16 w-16 rounded-full object-cover"
         >
         <div>
@@ -67,6 +72,9 @@
       document.getElementById('user-display-email').innerText = email || 'Logged in user';
       loadUserOrders(email);
     }
+
+    const profileAvatar = document.getElementById('profile-avatar');
+    profileAvatar.src = `https://images.weserv.nl/?url=${encodeURIComponent(profileAvatar.dataset.profileImage)}`;
 
     async function loadUserOrders(userEmail) {
       const { data: orders, error } = await supabase.from('orders').select('*').eq('user_email', userEmail);
