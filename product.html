@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShopCentral - All Products</title>
+  <title>Quick Cart - All Products</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
   <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 py-4 px-6 md:px-10 flex flex-wrap items-center justify-between gap-4">
-    <a href="index.html" class="text-2xl font-bold tracking-tight text-indigo-600">ShopCentral</a>
+    <a href="index.html" class="text-2xl font-bold tracking-tight text-indigo-600">Quick Cart</a>
     <div class="flex flex-wrap items-center gap-5 text-sm font-medium text-slate-600">
       <a href="index.html" class="hover:text-indigo-600">Home</a>
       <a href="categories.html" class="hover:text-indigo-600">Categories</a>
@@ -50,20 +50,35 @@
       if (categoryId) query = query.eq('category_id', categoryId);
 
       const { data: products, error } = await query;
-      if (error) return alert(error.message);
+      if (error) {
+        document.getElementById('product-grid').innerHTML = '<p class="col-span-full rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-700">Products could not be loaded right now. Please try again.</p>';
+        console.error('Error fetching products:', error);
+        return;
+      }
 
       const grid = document.getElementById('product-grid');
+      if (!products.length) {
+        grid.innerHTML = '<p class="col-span-full rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">No products found in this collection.</p>';
+        return;
+      }
       grid.innerHTML = products.map(p => `
         <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
-          <img src="${p.image_url || 'https://via.placeholder.com/300'}" class="h-48 w-full object-cover">
+          <img src="${p.image_url || 'https://via.placeholder.com/300'}" class="h-48 w-full object-cover" alt="${p.name}">
           <div class="p-4 flex-1 flex flex-col">
             <h3 class="font-bold text-lg text-gray-800">${p.name}</h3>
             <p class="text-sm text-gray-500 mt-1 mb-2">${p.description || 'No description provided.'}</p>
             <p class="text-indigo-600 font-semibold text-xl mb-4">$${parseFloat(p.price).toFixed(2)}</p>
-            <button onclick="addToCart(${p.id}, '${p.name}', ${p.price})" class="mt-auto w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700">Add to Cart</button>
+            <button data-id="${p.id}" class="add-to-cart-btn mt-auto w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700">Add to Cart</button>
           </div>
         </div>
       `).join('');
+
+      grid.addEventListener('click', (event) => {
+        const button = event.target.closest('.add-to-cart-btn');
+        if (!button) return;
+        const product = products.find(item => String(item.id) === String(button.dataset.id));
+        if (product) addToCart(product.id, product.name, product.price);
+      });
     }
 
     function addToCart(id, name, price) {
