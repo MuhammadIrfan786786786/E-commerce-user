@@ -1,0 +1,100 @@
+(() => {
+  const forms = document.querySelectorAll('.store-search');
+  if (!forms.length || typeof supabase === 'undefined') return;
+
+  const productPromise = supabase
+    .from('products')
+    .select('id, name, description')
+    .then(({ data }) => data || [])
+    .catch(() => []);
+
+  forms.forEach(form => {
+    const input = form.querySelector('input[name="search"]');
+    if (!input) return;
+
+    const suggestions = document.createElement('div');
+    suggestions.className = 'search-suggestions';
+    suggestions.setAttribute('role', 'listbox');
+    form.appendChild(suggestions);
+
+    let activeIndex = -1;
+
+    const closeSuggestions = () => {
+      suggestions.classList.remove('is-open');
+      suggestions.innerHTML = '';
+      activeIndex = -1;
+    };
+
+    const showSuggestions = async () => {
+      const term = input.value.trim().toLowerCase();
+      if (term.length < 1) {
+        closeSuggestions();
+        return;
+      }
+
+      const products = await productPromise;
+      const matches = products
+        .filter(product => `${product.name || ''} ${product.description || ''}`.toLowerCase().includes(term))
+        .slice(0, 6);
+
+      suggestions.innerHTML = '';
+      if (!matches.length) {
+        const empty = document.createElement('div');
+        empty.className = 'search-suggestion-empty';
+        empty.textContent = 'No matching products';
+        suggestions.appendChild(empty);
+        suggestions.classList.add('is-open');
+        return;
+      }
+
+      matches.forEach((product, index) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'search-suggestion';
+        option.setAttribute('role', 'option');
+        option.dataset.index = index;
+
+        const name = document.createElement('strong');
+        name.textContent = product.name || 'Product';
+        const hint = document.createElement('span');
+        hint.textContent = 'View product';
+        option.append(name, hint);
+
+        option.addEventListener('click', () => {
+          input.value = product.name || '';
+          form.submit();
+        });
+        suggestions.appendChild(option);
+      });
+
+      suggestions.classList.add('is-open');
+    };
+
+    input.addEventListener('input', showSuggestions);
+    input.addEventListener('keydown', event => {
+      const options = [...suggestions.querySelectorAll('.search-suggestion')];
+      if (!suggestions.classList.contains('is-open') || !options.length) {
+        if (event.key === 'Escape') closeSuggestions();
+        return;
+      }
+
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        activeIndex = event.key === 'ArrowDown'
+          ? (activeIndex + 1) % options.length
+          : (activeIndex - 1 + options.length) % options.length;
+        options.forEach((option, index) => option.classList.toggle('is-active', index === activeIndex));
+      } else if (event.key === 'Enter' && activeIndex >= 0) {
+        event.preventDefault();
+        options[activeIndex].click();
+      } else if (event.key === 'Escape') {
+        closeSuggestions();
+      }
+    });
+
+    form.addEventListener('submit', () => closeSuggestions());
+    document.addEventListener('click', event => {
+      if (!form.contains(event.target)) closeSuggestions();
+    });
+  });
+})();

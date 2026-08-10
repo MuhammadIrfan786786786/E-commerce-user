@@ -62,6 +62,49 @@ nav > a:first-child {
   border-radius: 6px !important;
   font-size: 13px;
 }
+
+.store-search { position: relative; }
+
+.search-suggestions {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 56px;
+  display: none;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, .98);
+  box-shadow: 0 18px 42px rgba(23, 33, 27, .16);
+}
+
+.search-suggestions.is-open { display: block; animation: page-rise .2s ease both; }
+
+.search-suggestion {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 13px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  text-align: left;
+  box-shadow: none !important;
+}
+
+.search-suggestion:last-child { border-bottom: 0; }
+.search-suggestion:hover,
+.search-suggestion.is-active { background: var(--sage) !important; transform: none; }
+.search-suggestion strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-suggestion span,
+.search-suggestion-empty { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.search-suggestion-empty { padding: 14px; text-align: center; }
 nav > a:first-child::after {
   content: '.';
   color: var(--accent);
@@ -339,6 +382,7 @@ body.bg-slate-950 main section input {
   nav div { justify-content: flex-start !important; overflow-x: auto; padding-bottom: 2px; }
   nav div a { white-space: nowrap; }
   .store-search { order: 3; flex-basis: 100%; max-width: none; margin: 0; }
+  .search-suggestions { right: 58px; }
   header h1 { font-size: clamp(2rem, 10vw, 2.7rem) !important; }
   #cart-list > div { align-items: flex-start !important; flex-direction: column; }
   #cart-list > div > div:last-child { width: 100%; justify-content: space-between; }
