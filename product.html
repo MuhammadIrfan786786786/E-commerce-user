@@ -12,6 +12,11 @@
 <body class="bg-slate-50 min-h-screen text-slate-900">
   <nav class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 py-4 px-6 md:px-10 flex flex-wrap items-center justify-between gap-4">
     <a href="index.html" class="text-2xl font-bold tracking-tight text-indigo-600">Quick Cart</a>
+    <form class="store-search" action="product.html" method="get" role="search">
+      <label class="sr-only" for="products-search">Search products</label>
+      <input id="products-search" name="search" type="search" placeholder="Search products..." autocomplete="off">
+      <button type="submit" aria-label="Search products">Search</button>
+    </form>
     <div class="flex flex-wrap items-center gap-5 text-sm font-medium text-slate-600">
       <a href="index.html" class="hover:text-indigo-600">Home</a>
       <a href="categories.html" class="hover:text-indigo-600">Categories</a>
@@ -45,6 +50,9 @@
     async function loadProducts() {
       const urlParams = new URLSearchParams(window.location.search);
       const categoryId = urlParams.get('category');
+      const searchTerm = (urlParams.get('search') || '').trim().toLowerCase();
+      const searchInput = document.getElementById('products-search');
+      if (searchInput) searchInput.value = urlParams.get('search') || '';
 
       let query = supabase.from('products').select('*');
       if (categoryId) query = query.eq('category_id', categoryId);
@@ -56,12 +64,16 @@
         return;
       }
 
+      const matchingProducts = (products || []).filter(product => {
+        if (!searchTerm) return true;
+        return `${product.name || ''} ${product.description || ''}`.toLowerCase().includes(searchTerm);
+      });
       const grid = document.getElementById('product-grid');
-      if (!products.length) {
+      if (!matchingProducts.length) {
         grid.innerHTML = '<p class="col-span-full rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">No products found in this collection.</p>';
         return;
       }
-      grid.innerHTML = products.map(p => `
+      grid.innerHTML = matchingProducts.map(p => `
         <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
           <img src="${p.image_url || 'https://via.placeholder.com/300'}" class="h-48 w-full object-cover" alt="${p.name}">
           <div class="p-4 flex-1 flex flex-col">
@@ -76,7 +88,7 @@
       grid.addEventListener('click', (event) => {
         const button = event.target.closest('.add-to-cart-btn');
         if (!button) return;
-        const product = products.find(item => String(item.id) === String(button.dataset.id));
+        const product = matchingProducts.find(item => String(item.id) === String(button.dataset.id));
         if (product) addToCart(product.id, product.name, product.price);
       });
     }

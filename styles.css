@@ -36,6 +36,32 @@ nav > a:first-child {
   color: var(--ink) !important;
   letter-spacing: -.06em;
 }
+
+.store-search {
+  display: flex;
+  align-items: center;
+  flex: 1 1 220px;
+  max-width: 320px;
+  gap: 6px;
+  margin: 0 auto;
+}
+
+.store-search input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px !important;
+  font-size: 13px;
+}
+
+.store-search button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 13px;
+  border-radius: 6px !important;
+  font-size: 13px;
+}
 nav > a:first-child::after {
   content: '.';
   color: var(--accent);
@@ -312,6 +338,7 @@ body.bg-slate-950 main section input {
   nav > a:first-child { margin-top: 5px; }
   nav div { justify-content: flex-start !important; overflow-x: auto; padding-bottom: 2px; }
   nav div a { white-space: nowrap; }
+  .store-search { order: 3; flex-basis: 100%; max-width: none; margin: 0; }
   header h1 { font-size: clamp(2rem, 10vw, 2.7rem) !important; }
   #cart-list > div { align-items: flex-start !important; flex-direction: column; }
   #cart-list > div > div:last-child { width: 100%; justify-content: space-between; }
