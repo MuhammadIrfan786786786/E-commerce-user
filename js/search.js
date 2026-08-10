@@ -34,8 +34,16 @@
 
       const products = await productPromise;
       const matches = products
-        .filter(product => `${product.name || ''} ${product.description || ''}`.toLowerCase().includes(term))
-        .slice(0, 6);
+        .map(product => {
+          const name = (product.name || '').toLowerCase();
+          const description = (product.description || '').toLowerCase();
+          const score = name.startsWith(term) ? 0 : name.includes(term) ? 1 : description.includes(term) ? 2 : 3;
+          return { product, score };
+        })
+        .filter(result => result.score < 3)
+        .sort((left, right) => left.score - right.score)
+        .slice(0, 6)
+        .map(result => result.product);
 
       suggestions.innerHTML = '';
       if (!matches.length) {
