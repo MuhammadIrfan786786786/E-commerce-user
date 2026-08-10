@@ -33,17 +33,15 @@
       <div class="flex items-center gap-4">
         <img
           id="profile-avatar"
-          src="https://ui-avatars.com/api/?name=Quick+Cart&background=e76843&color=fff&size=150"
-          data-profile-image="https://instagram.fkhi17-2.fna.fbcdn.net/v/t51.82787-19/756724548_18452391262185588_6272743396484119927_n.jpg?stp=dst-jpg_s150x150_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.fkhi17-2.fna.fbcdn.net&_nc_cat=100&_nc_oc=Q6cZ2gHTIkT66sc99wvsgeacHxMKSdNScZY7OkMbI0x-0NBNaIEtTfwcc1e7Ug6UFmrVSoI&_nc_ohc=MICN-B-aKtsQ7kNvwEHlFeY&_nc_gid=fi7Hl2ZU_winTSr_gZlSHg&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AQEn7ASVmhNsK75xGWYn4eIcXF7Utw-1QXCuwPdSdE-5Ww&oe=6A7F4CBB&_nc_sid=7a9f4b"
+          src="https://ui-avatars.com/api/?name=User&background=e76843&color=fff&size=150"
           alt="Profile picture"
           referrerpolicy="no-referrer"
           loading="eager"
           decoding="async"
-          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Quick+Cart&background=e76843&color=fff&size=150';"
           class="profile-avatar h-16 w-16 rounded-full object-cover"
         >
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Irfan Arshad</h1>
+          <h1 id="profile-display-name" class="text-2xl font-bold text-gray-800">User Profile</h1>
           <p id="user-display-email" class="text-gray-500 mt-1">Not logged in</p>
         </div>
       </div>
@@ -67,6 +65,22 @@
   </main>
 
   <script>
+    const profileAvatar = document.getElementById('profile-avatar');
+    const profileName = document.getElementById('profile-display-name');
+
+    function setProfileAvatar(user, displayName) {
+      const metadata = user.user_metadata || {};
+      const identityData = user.identities?.[0]?.identity_data || {};
+      const avatarUrl = metadata.avatar_url || metadata.picture || metadata.image_url || identityData.avatar_url || identityData.picture;
+      const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=e76843&color=fff&size=150`;
+
+      profileAvatar.src = avatarUrl || fallbackUrl;
+      profileAvatar.onerror = () => {
+        profileAvatar.onerror = null;
+        profileAvatar.src = fallbackUrl;
+      };
+    }
+
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -75,13 +89,14 @@
       }
 
       const email = user.email;
+      const metadata = user.user_metadata || {};
+      const displayName = metadata.full_name || metadata.name || email?.split('@')[0] || 'User Profile';
       localStorage.setItem('userEmail', email || '');
+      profileName.innerText = displayName;
       document.getElementById('user-display-email').innerText = email || 'Logged in user';
+      setProfileAvatar(user, displayName);
       loadUserOrders(email);
     }
-
-    const profileAvatar = document.getElementById('profile-avatar');
-    profileAvatar.src = `https://images.weserv.nl/?url=${encodeURIComponent(profileAvatar.dataset.profileImage)}`;
 
     async function loadUserOrders(userEmail) {
       const { data: orders, error } = await supabase.from('orders').select('*').eq('user_email', userEmail);

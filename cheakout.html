@@ -20,7 +20,7 @@
       <form id="checkout-form" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Email Address</label>
-          <input type="email" id="checkout-email" required class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+          <input type="email" id="checkout-email" required readonly class="w-full mt-1 p-2 border border-gray-300 rounded-md">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">Shipping Address</label>
@@ -30,25 +30,41 @@
           <span>Total Order Value:</span>
           <span id="order-total">$0.00</span>
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 font-semibold transition">Place Order</button>
+        <button id="place-order-button" type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 font-semibold transition">Place Order</button>
       </form>
     </div>
   </main>
 
   <script>
     const cart = JSON.parse(localStorage.getItem('userCart')) || [];
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const total = cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)), 0);
     document.getElementById('order-total').innerText = `$${total.toFixed(2)}`;
 
     // Autofill email if user logged in
-    const loggedEmail = localStorage.getItem('userEmail');
-    if (loggedEmail) document.getElementById('checkout-email').value = loggedEmail;
+    async function loadCheckoutUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('checkout-email').value = user.email || '';
+    }
+    loadCheckoutUser();
 
     document.getElementById('checkout-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (cart.length === 0) return alert('Your cart is empty!');
 
-      const user_email = document.getElementById('checkout-email').value;
+      const button = document.getElementById('place-order-button');
+      button.disabled = true;
+      button.innerText = 'Placing order...';
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const user_email = user.email;
       const shipping_address = document.getElementById('checkout-address').value;
 
       const { data, error } = await supabase.from('orders').insert([
@@ -57,6 +73,8 @@
 
       if (error) {
         alert('Checkout failed: ' + error.message);
+        button.disabled = false;
+        button.innerText = 'Place Order';
       } else {
         alert('Order placed successfully!');
         localStorage.removeItem('userCart');
