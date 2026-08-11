@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/security.js"></script>
 <script src="js/search.js" defer></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
@@ -48,9 +49,9 @@
       const grid = document.getElementById('category-grid');
       grid.innerHTML = categories.map(cat => `
         <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
-          <h2 class="text-xl font-bold text-gray-800">${cat.name}</h2>
-          <p class="text-sm text-gray-500 mt-1">Slug: ${cat.slug}</p>
-          <a href="product.html?category=${cat.id}" class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">View Items &rarr;</a>
+          <h2 class="text-xl font-bold text-gray-800">${escapeHtml(cat.name)}</h2>
+          <p class="text-sm text-gray-500 mt-1">Slug: ${escapeHtml(cat.slug)}</p>
+          <a href="product.html?category=${encodeURIComponent(cat.id)}" class="inline-block mt-4 text-indigo-600 font-semibold hover:underline">View Items &rarr;</a>
         </div>
       `).join('');
     }

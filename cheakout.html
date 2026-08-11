@@ -37,8 +37,37 @@
 
   <script>
     const cart = JSON.parse(localStorage.getItem('userCart')) || [];
-    const total = cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 1)), 0);
-    document.getElementById('order-total').innerText = `$${total.toFixed(2)}`;
+    let verifiedTotal = 0;
+    let verifiedCart = [];
+
+    async function verifyCartPrices() {
+      if (!cart.length) {
+        document.getElementById('order-total').innerText = '$0.00';
+        return false;
+      }
+
+      const productIds = cart.map(item => item.id).filter(Boolean);
+      const { data: products, error } = await supabase.from('products').select('id, price, name').in('id', productIds);
+      if (error || !products?.length) {
+        alert('Your cart could not be verified. Please return to products and try again.');
+        return false;
+      }
+
+      const productMap = new Map(products.map(product => [String(product.id), product]));
+      verifiedCart = cart
+        .map(item => {
+          const product = productMap.get(String(item.id));
+          const quantity = Math.max(1, Number(item.quantity) || 1);
+          if (!product) return null;
+          return { product, quantity };
+        })
+        .filter(Boolean);
+
+      if (!verifiedCart.length) return false;
+      verifiedTotal = verifiedCart.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0);
+      document.getElementById('order-total').innerText = `$${verifiedTotal.toFixed(2)}`;
+      return true;
+    }
 
     // Autofill email if user logged in
     async function loadCheckoutUser() {
@@ -50,10 +79,11 @@
       document.getElementById('checkout-email').value = user.email || '';
     }
     loadCheckoutUser();
+    verifyCartPrices();
 
     document.getElementById('checkout-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (cart.length === 0) return alert('Your cart is empty!');
+      if (!(await verifyCartPrices())) return;
 
       const button = document.getElementById('place-order-button');
       button.disabled = true;
@@ -68,7 +98,7 @@
       const shipping_address = document.getElementById('checkout-address').value;
 
       const { data, error } = await supabase.from('orders').insert([
-        { user_email, total_amount: total, shipping_address, status: 'Pending' }
+        { user_email, total_amount: verifiedTotal, shipping_address, status: 'Pending' }
       ]);
 
       if (error) {

@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabaseClient.js"></script>
+  <script src="./js/security.js"></script>
   <script src="./js/search.js" defer></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
@@ -69,7 +70,7 @@
         return `
           <div class="py-4 flex justify-between items-center">
             <div>
-              <h4 class="font-bold text-gray-800">${item.name || item.title || 'Product'}</h4>
+              <h4 class="font-bold text-gray-800">${escapeHtml(item.name || item.title || 'Product')}</h4>
               <p class="text-sm text-gray-500">$${price.toFixed(2)} x ${quantity}</p>
             </div>
             <div class="flex items-center space-x-4">

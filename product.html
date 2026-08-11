@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/security.js"></script>
 <script src="js/search.js" defer></script>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
@@ -77,10 +78,10 @@
       }
       grid.innerHTML = matchingProducts.map(p => `
         <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
-          <img src="${p.image_url || 'https://via.placeholder.com/300'}" class="h-48 w-full object-cover" alt="${p.name}">
+          <img src="${escapeHtml(p.image_url || 'https://via.placeholder.com/300')}" class="h-48 w-full object-cover" alt="${escapeHtml(p.name)}">
           <div class="p-4 flex-1 flex flex-col">
-            <h3 class="font-bold text-lg text-gray-800">${p.name}</h3>
-            <p class="text-sm text-gray-500 mt-1 mb-2">${p.description || 'No description provided.'}</p>
+            <h3 class="font-bold text-lg text-gray-800">${escapeHtml(p.name)}</h3>
+            <p class="text-sm text-gray-500 mt-1 mb-2">${escapeHtml(p.description || 'No description provided.')}</p>
             <p class="text-indigo-600 font-semibold text-xl mb-4">$${parseFloat(p.price).toFixed(2)}</p>
             <button data-id="${p.id}" class="add-to-cart-btn mt-auto w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700">Add to Cart</button>
           </div>
