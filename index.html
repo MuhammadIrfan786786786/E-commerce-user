@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Relative path fix for script -->
   <script src="./js/supabaseClient.js"></script>
+  <script src="./js/activity.js"></script>
   <script src="./js/security.js"></script>
   <script src="./js/search.js" defer></script>
 </head>
@@ -94,6 +95,7 @@
         <button id="logout-button" type="button" class="rounded-md bg-red-500 px-3 py-2 text-white hover:bg-red-600">Log Out</button>
       `;
       document.getElementById('logout-button').addEventListener('click', async () => {
+        await trackUserActivity(user.email, 'logout');
         const { error } = await supabase.auth.signOut();
         if (error) {
           alert('Logout failed: ' + error.message);
